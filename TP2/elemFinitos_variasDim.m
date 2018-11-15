@@ -30,6 +30,7 @@ d = size(P,2);
 
 T = delaunay(P(:,1),P(:,2));
 M = sparse(N,N);
+A = sparse(N,N);
 b = zeros(N,1);
 
 NT = size(T,1);
@@ -38,14 +39,16 @@ for r=1:NT
   nodos = T(r,:);
   puntos = P(nodos,:);
   
+  med_T = abs(det(H));
   H = [ones(1,d+1); puntos'];
   G = H\[zeros(1,d); eye(d)];
-  Mloc = abs(det(H))*G*G'/prod(1:d);
+  Mloc = med_T*G*G'/prod(1:d);
   
   M(nodos,nodos) = M(nodos,nodos)+Mloc;
   
-  bloc = f(puntos)*abs(det(H))/6;
-  b(nodos) = b(nodos)+bloc;
+  Aloc = med_T/12*toeplitz([2 1 1])
+  A(nodos,nodos) = A(nodos,nodos)+Aloc;
+
 endfor
 
 u = zeros(N,1);
